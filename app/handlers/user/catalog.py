@@ -84,36 +84,31 @@ async def product_callback(callback: CallbackQuery, session: AsyncSession):
     try:
         product_id = int(callback.data.split("_")[1])
         product = await product_crud.get(session, product_id)
-        
+
         if not product:
             await callback.answer("Товар не найден", show_alert=True)
             return
-        
+
         # Проверяем, есть ли товар в корзине (заглушка)
         in_cart = False  # TODO: реализовать проверку корзины
-        
+
         text = MessageTexts.PRODUCT_DETAIL_TEMPLATE.format(
             unique_mark="⭐ " if product.is_unique else "",
             name=product.name,
             metaphoric_description=product.metaphoric_description or product.description,
-            price=product.display_price,
+            price=product.price,
             availability="✅ В наличии" if product.is_available else "❌ Нет в наличии",
             category_name=product.category.name if product.category else ""
         )
-        
-        if product.photo_url:
-            await callback.message.delete()
-            await callback.message.answer_photo(
-                photo=product.photo_url,
-                caption=text,
-                reply_markup=get_product_detail_keyboard(product, in_cart)
-            )
+
+        # Добавляем изображение товара, если оно есть
+        photo_url = product.photo_url or ""
+        if photo_url:
+            await callback.message.answer_photo(photo_url, caption=text)
         else:
-            await callback.message.edit_text(
-                text,
-                reply_markup=get_product_detail_keyboard(product, in_cart)
-            )
-        
+            await callback.message.answer(text)
+
     except Exception as e:
         logger.error(f"Ошибка в product_callback: {e}")
-        await callback.answer(MessageTexts.ERROR_GENERAL, show_alert=True)
+        await callback.answer("Ошибка сервера. Попробуйте позже.", show_alert=True)
+

@@ -10,10 +10,10 @@ def get_main_menu_keyboard() -> ReplyKeyboardMarkup:
     """Главное меню бота"""
     builder = ReplyKeyboardBuilder()
     
-    builder.button(text="🕶️ Каталог")
-    builder.button(text="🎯 Подбор очков")
-    builder.button(text="🛒 Корзина")
-    builder.button(text="❓ FAQ")
+    builder.button(text="🕶️ Каталог очков")
+    builder.button(text="🎯 Подбор по параметрам")
+    builder.button(text="🛒 Моя корзина")
+    builder.button(text="❓ Вопросы (FAQ)")
     builder.button(text="💬 Оставить отзыв")
     
     builder.adjust(2, 2, 1)
@@ -47,8 +47,8 @@ def get_categories_keyboard(categories: List[Dict[str, Any]]) -> InlineKeyboardM
             callback_data=f"category_{category['id']}"
         )
     
-    builder.button(text="🔙 Назад", callback_data="back_to_main")
-    
+    builder.button(text="🔙 Назад в меню", callback_data="back_to_main")
+
     builder.adjust(1)
     return builder.as_markup()
 
@@ -141,9 +141,9 @@ def get_checkout_confirmation_keyboard() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     
     builder.button(text="✅ Подтвердить заказ", callback_data="confirm_order")
-    builder.button(text="✏️ Изменить данные", callback_data="edit_order_data")
-    builder.button(text="❌ Отменить", callback_data="cancel_order")
-    
+    builder.button(text="✏️ Изменить данные заказа", callback_data="edit_order_data")
+    builder.button(text="❌ Отменить оформление заказа", callback_data="cancel_order")
+
     builder.adjust(1)
     return builder.as_markup()
 
@@ -152,135 +152,50 @@ def get_selection_keyboard() -> InlineKeyboardMarkup:
     """Клавиатура для начала подбора"""
     builder = InlineKeyboardBuilder()
     
-    builder.button(text="🎯 Начать подбор", callback_data="start_selection")
-    builder.button(text="🔙 Главное меню", callback_data="back_to_main")
-    
+    builder.button(text="🎯 Начать подбор очков", callback_data="start_selection")
+    builder.button(text="🔙 Вернуться в главное меню", callback_data="back_to_main")
+
     builder.adjust(1)
     return builder.as_markup()
 
 
-def get_gender_keyboard() -> InlineKeyboardMarkup:
-    """Клавиатура выбора пола"""
+def get_review_keyboard() -> InlineKeyboardMarkup:
+    """Клавиатура для отзывов"""
     builder = InlineKeyboardBuilder()
-    
-    builder.button(text="👨 Мужской", callback_data="gender_male")
-    builder.button(text="👩 Женский", callback_data="gender_female")
-    builder.button(text="🤷 Не важно", callback_data="gender_any")
-    
+    builder.button(text="💬 Оставить отзыв", callback_data="leave_review")
+    builder.button(text="🔙 Вернуться в меню", callback_data="back_to_main")
     builder.adjust(1)
     return builder.as_markup()
 
 
-def get_style_keyboard() -> InlineKeyboardMarkup:
-    """Клавиатура выбора стиля"""
+def get_faq_keyboard() -> InlineKeyboardMarkup:
+    """Клавиатура для FAQ"""
     builder = InlineKeyboardBuilder()
-    
-    builder.button(text="😎 Классический", callback_data="style_classic")
-    builder.button(text="🕶️ Спортивный", callback_data="style_sport")
-    builder.button(text="🌟 Модный", callback_data="style_fashion")
-    builder.button(text="🤓 Имиджевый", callback_data="style_image")
-    
-    builder.adjust(2)
+    builder.button(text="❓ Часто задаваемые вопросы (FAQ)", callback_data="show_faq")
+    builder.button(text="🔙 Вернуться в главное меню", callback_data="back_to_main")
+    builder.adjust(1)
     return builder.as_markup()
 
 
-def get_budget_keyboard() -> InlineKeyboardMarkup:
-    """Клавиатура выбора бюджета"""
+def get_order_keyboard(order_id: int) -> InlineKeyboardMarkup:
+    """Клавиатура для управления заказом"""
     builder = InlineKeyboardBuilder()
-    
-    builder.button(text="💰 До 2000₽", callback_data="budget_low")
-    builder.button(text="💎 2000-5000₽", callback_data="budget_medium")
-    builder.button(text="👑 Свыше 5000₽", callback_data="budget_high")
-    builder.button(text="🤷 Не важно", callback_data="budget_any")
-    
-    builder.adjust(2)
+    builder.button(text="🔄 Повторить заказ", callback_data=f"repeat_order_{order_id}")
+    builder.button(text="❌ Отменить заказ", callback_data=f"cancel_order_{order_id}")
+    builder.button(text="📋 К списку заказов", callback_data="back_to_orders")
+    builder.adjust(1)
     return builder.as_markup()
 
 
-def get_selection_results_keyboard(products: List[Dict[str, Any]]) -> InlineKeyboardMarkup:
-    """Клавиатура с результатами подбора"""
+def get_orders_list_keyboard(orders: list) -> InlineKeyboardMarkup:
+    """Клавиатура со списком заказов"""
     builder = InlineKeyboardBuilder()
-    
-    for i, product in enumerate(products[:3], 1):  # Максимум 3 товара
+    for order in orders:
         builder.button(
-            text=f"{i}. {product['name']} - {product['price']}₽",
-            callback_data=f"product_{product['id']}"
+            text=f"📦 Заказ №{order['id']} от {order['date']}",
+            callback_data=f"order_{order['id']}"
         )
-    
-    builder.button(text="🔄 Новый подбор", callback_data="start_selection")
-    builder.button(text="🔙 Главное меню", callback_data="back_to_main")
-    
+    builder.button(text="🔙 Вернуться в главное меню", callback_data="back_to_main")
     builder.adjust(1)
     return builder.as_markup()
 
-
-def get_faq_keyboard(faq_items: List[Dict[str, Any]]) -> InlineKeyboardMarkup:
-    """Клавиатура с вопросами FAQ"""
-    builder = InlineKeyboardBuilder()
-    
-    for item in faq_items:
-        builder.button(
-            text=item['question'][:50] + ("..." if len(item['question']) > 50 else ""),
-            callback_data=f"faq_{item['id']}"
-        )
-    
-    builder.button(text="🔙 Главное меню", callback_data="back_to_main")
-    
-    builder.adjust(1)
-    return builder.as_markup()
-
-
-def get_faq_item_keyboard(faq_id: int) -> InlineKeyboardMarkup:
-    """Клавиатура для отдельного FAQ"""
-    builder = InlineKeyboardBuilder()
-    
-    builder.button(text="🔙 К вопросам", callback_data="back_to_faq")
-    builder.button(text="💬 Связаться с поддержкой", callback_data="contact_support")
-    
-    builder.adjust(1)
-    return builder.as_markup()
-
-
-def get_review_type_keyboard() -> InlineKeyboardMarkup:
-    """Клавиатура выбора типа отзыва"""
-    builder = InlineKeyboardBuilder()
-    
-    builder.button(text="📝 Текстовый отзыв", callback_data="review_text")
-    builder.button(text="🎤 Голосовой отзыв", callback_data="review_voice")
-    builder.button(text="❌ Отмена", callback_data="cancel_review")
-    
-    builder.adjust(1)
-    return builder.as_markup()
-
-
-def get_promo_keyboard() -> InlineKeyboardMarkup:
-    """Клавиатура для промокода"""
-    builder = InlineKeyboardBuilder()
-    
-    builder.button(text="🎫 Ввести промокод", callback_data="enter_promo")
-    builder.button(text="⏭️ Пропустить", callback_data="skip_promo")
-    
-    builder.adjust(1)
-    return builder.as_markup()
-
-
-def get_contact_keyboard() -> InlineKeyboardMarkup:
-    """Клавиатура для связи с поддержкой"""
-    builder = InlineKeyboardBuilder()
-    
-    if hasattr(get_contact_keyboard, 'support_username'):
-        builder.button(
-            text="💬 Написать в поддержку",
-            url=f"https://t.me/{get_contact_keyboard.support_username}"
-        )
-    
-    builder.button(text="🔙 Назад", callback_data="back_to_faq")
-    
-    builder.adjust(1)
-    return builder.as_markup()
-
-
-# Функция для установки username поддержки
-def set_support_username(username: str):
-    """Установить username для поддержки"""
-    get_contact_keyboard.support_username = username
