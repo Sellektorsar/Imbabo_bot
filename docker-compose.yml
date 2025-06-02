@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  bot:
+    build: .
+    container_name: imbabo_bot
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://imbabo:password@postgres:5432/imbabo_db
+      - REDIS_URL=redis://redis:6379/0
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./logs:/app/logs
+      - ./static:/app/static
+    networks:
+      - imbabo_network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: imbabo_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: imbabo_db
+      POSTGRES_USER: imbabo
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - imbabo_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: imbabo_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - imbabo_network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  imbabo_network:
+    driver: bridge
