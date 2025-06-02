@@ -10,7 +10,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from config.settings import settings
-from database.database import get_session
+from database.database import db_manager
 from database.crud import category_crud, product_crud
 
 
@@ -29,7 +29,7 @@ async def check_admin_setup():
     # Проверка базы данных
     print("🗄️ Проверка базы данных:")
     try:
-        async with get_session() as session:
+        async with db_manager.async_session() as session:
             # Проверяем категории
             categories = await category_crud.get_all(session)
             print(f"   📂 Категорий в БД: {len(categories)}")
@@ -100,7 +100,7 @@ async def create_sample_data():
     print("🎯 Создание тестовых данных...")
     
     try:
-        async with get_session() as session:
+        async with db_manager.async_session() as session:
             # Создаем категорию если её нет
             categories = await category_crud.get_all(session)
             if not categories:
