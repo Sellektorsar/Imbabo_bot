@@ -53,7 +53,14 @@ async def main():
         logger.info("База данных инициализирована")
         
         # Инициализация обработчика ошибок
-        admin_ids = [int(admin_id) for admin_id in settings.admin_ids.split(',') if admin_id.strip()]
+        # Преобразуем admin_ids в список целых чисел
+        if isinstance(settings.admin_ids, str):
+            admin_ids = [int(admin_id.strip()) for admin_id in settings.admin_ids.split(',') if admin_id.strip()]
+        elif isinstance(settings.admin_ids, (list, tuple)):
+            admin_ids = [int(admin_id) for admin_id in settings.admin_ids if str(admin_id).strip()]
+        else:
+            admin_ids = []
+            logger.warning("ADMIN_IDS не задан или имеет неверный формат")
         init_error_handler(bot, admin_ids)
         logger.info("Обработчик ошибок инициализирован")
         
